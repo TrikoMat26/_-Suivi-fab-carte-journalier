@@ -19,6 +19,11 @@ Public Sub UpdateDailyData()
     Dim dictCouleurs As Object, numOrdre As String, couleurCell As Long
     Dim prepDict As Object
 
+    Const PREP_FILE_PATH As String = "T:\DT atelier cartes\Demande de transfert Atelier cartes.xlsx"
+    Const PREP_KEY_COLUMN As Long = 3
+    Const PREP_VALUE_COLUMN As Long = 8
+
+
 
     '---- Optimisation Excel --------------------------------------------
     With Application
@@ -30,9 +35,6 @@ Public Sub UpdateDailyData()
     
     On Error GoTo Cleanup
 
-    Const PREP_FILE_PATH As String = "T:\\DT atelier cartes\\Demande de transfert Atelier cartes.xlsx"
-    Const PREP_KEY_COLUMN As Long = 3
-    Const PREP_VALUE_COLUMN As Long = 8
 
     '---- Recherche du fichier source -----------------------------------
     srcPath = "W:\CHARGE_SAP\"
@@ -110,9 +112,6 @@ Public Sub UpdateDailyData()
     If Err.Number <> 0 Then Err.Clear: ws.Name = "Données"
     On Error GoTo Cleanup
 
-    Const PREP_FILE_PATH As String = "T:\\DT atelier cartes\\Demande de transfert Atelier cartes.xlsx"
-    Const PREP_KEY_COLUMN As Long = 3
-    Const PREP_VALUE_COLUMN As Long = 8
 
     wbSource.Worksheets(1).UsedRange.Copy ws.Range("A1")
     ws.Rows(1).Delete xlUp                      'en-tête en double
@@ -303,9 +302,6 @@ Public Sub UpdateDailyData()
                     .SpecialCells(xlCellTypeVisible)
     On Error GoTo Cleanup
 
-    Const PREP_FILE_PATH As String = "T:\\DT atelier cartes\\Demande de transfert Atelier cartes.xlsx"
-    Const PREP_KEY_COLUMN As Long = 3
-    Const PREP_VALUE_COLUMN As Long = 8
 
     If Not rngVis Is Nothing Then
         For Each cel In rngVis
