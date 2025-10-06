@@ -17,6 +17,7 @@ Public Sub UpdateDailyData()
     Dim i As Long, newRow As Long
     Dim prevValue As Variant, currentColor As Long
     Dim dictCouleurs As Object, numOrdre As String, couleurCell As Long
+    Dim prepDict As Object
 
 
     '---- Optimisation Excel --------------------------------------------
@@ -28,6 +29,10 @@ Public Sub UpdateDailyData()
     
     
     On Error GoTo Cleanup
+
+    Const PREP_FILE_PATH As String = "T:\\DT atelier cartes\\Demande de transfert Atelier cartes.xlsx"
+    Const PREP_KEY_COLUMN As Long = 3
+    Const PREP_VALUE_COLUMN As Long = 8
 
     '---- Recherche du fichier source -----------------------------------
     srcPath = "W:\CHARGE_SAP\"
@@ -59,6 +64,9 @@ Public Sub UpdateDailyData()
     
     'Réinitialisation des filtres et des colonnes masquées
     Call DesactiverFiltresEtAfficherColonnes
+    RemovePreparationColumn ThisWorkbook.Worksheets(2), "Pr�paration"
+    RemovePreparationColumn ThisWorkbook.Worksheets(3), "Pr�paration"
+
     
     '====================================================================
     '  SAUVEGARDE DES COULEURS COLONNE Q (basée sur numéro d'ordre col B)
@@ -101,6 +109,10 @@ Public Sub UpdateDailyData()
     ws.Name = sheetName
     If Err.Number <> 0 Then Err.Clear: ws.Name = "Données"
     On Error GoTo Cleanup
+
+    Const PREP_FILE_PATH As String = "T:\\DT atelier cartes\\Demande de transfert Atelier cartes.xlsx"
+    Const PREP_KEY_COLUMN As Long = 3
+    Const PREP_VALUE_COLUMN As Long = 8
 
     wbSource.Worksheets(1).UsedRange.Copy ws.Range("A1")
     ws.Rows(1).Delete xlUp                      'en-tête en double
@@ -290,6 +302,10 @@ Public Sub UpdateDailyData()
     Set rngVis = ws.Range("B2", ws.Cells(ws.Rows.Count, "B").End(xlUp)) _
                     .SpecialCells(xlCellTypeVisible)
     On Error GoTo Cleanup
+
+    Const PREP_FILE_PATH As String = "T:\\DT atelier cartes\\Demande de transfert Atelier cartes.xlsx"
+    Const PREP_KEY_COLUMN As Long = 3
+    Const PREP_VALUE_COLUMN As Long = 8
 
     If Not rngVis Is Nothing Then
         For Each cel In rngVis
@@ -533,6 +549,10 @@ Public Sub UpdateDailyData()
     
     
     
+    Set prepDict = LoadPreparationData(PREP_FILE_PATH, PREP_KEY_COLUMN, PREP_VALUE_COLUMN)
+    InsertPreparationColumnWithData destWs, 10, "Pr�paration", prepDict
+    InsertPreparationColumnWithData wbDest.Worksheets(3), 5, "Pr�paration", prepDict
+
     destWs.Range("A:A,E:H").EntireColumn.Hidden = True
 
     MsgBox "Mise à jour terminée : données importées de " & srcFileName, vbInformation
@@ -553,10 +573,82 @@ Cleanup:
     If Err.Number <> 0 Then MsgBox "Erreur : " & Err.Description, vbCritical
 End Sub
 
+'----------------------------------------------------------------------
+Private Sub RemovePreparationColumn(ws As Worksheet, headerName As String)
+    Dim headerCell As Range
 
+    If ws Is Nothing Then Exit Sub
 
+    On Error Resume Next
+    Set headerCell = ws.Rows(1).Find(What:=headerName, LookIn:=xlValues, LookAt:=xlWhole)
+    On Error GoTo 0
 
+    If Not headerCell Is Nothing Then
+        ws.Columns(headerCell.Column).Delete
+    End If
+End Sub
 
+'----------------------------------------------------------------------
+Private Function LoadPreparationData(filePath As String, keyColumn As Long, valueColumn As Long) As Object
+    Dim wb As Workbook, wsSrc As Worksheet
+    Dim lastRow As Long, r As Long
+    Dim dict As Object
+    Dim key As String
+
+    If Len(filePath) = 0 Then Exit Function
+    If Dir(filePath) = "" Then Exit Function
+
+    On Error GoTo CleanExit
+
+    Set wb = Workbooks.Open(filePath, ReadOnly:=True)
+    Set wsSrc = wb.Worksheets(1)
+
+    lastRow = wsSrc.Cells(wsSrc.Rows.Count, keyColumn).End(xlUp).Row
+    If lastRow < 2 Then GoTo CleanExit
+
+    Set dict = CreateObject("Scripting.Dictionary")
+
+    For r = 2 To lastRow
+        key = ToText(wsSrc.Cells(r, keyColumn).Value)
+        If Len(key) > 0 Then
+            If Not dict.Exists(key) Then
+                dict.Add key, wsSrc.Cells(r, valueColumn).Value
+            End If
+        End If
+    Next r
+
+CleanExit:
+    If Not wb Is Nothing Then wb.Close SaveChanges:=False
+    Set LoadPreparationData = dict
+End Function
+
+'----------------------------------------------------------------------
+Private Sub InsertPreparationColumnWithData(ws As Worksheet, colIndex As Long, headerName As String, prepDict As Object)
+    Dim lastRow As Long, r As Long
+    Dim key As String
+
+    If ws Is Nothing Then Exit Sub
+    If colIndex < 1 Then Exit Sub
+
+    ws.Columns(colIndex).Insert Shift:=xlToRight
+    ws.Cells(1, colIndex).Value = headerName
+
+    lastRow = ws.Cells(ws.Rows.Count, "B").End(xlUp).Row
+    If lastRow < 2 Then Exit Sub
+
+    For r = 2 To lastRow
+        key = ToText(ws.Cells(r, "B").Value)
+        If Len(key) > 0 Then
+            If Not prepDict Is Nothing And prepDict.Exists(key) Then
+                ws.Cells(r, colIndex).Value = prepDict(key)
+            Else
+                ws.Cells(r, colIndex).Value = ""
+            End If
+        Else
+            ws.Cells(r, colIndex).Value = ""
+        End If
+    Next r
+End Sub
 
 
 '======================================================================
