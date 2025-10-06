@@ -64,8 +64,8 @@ Public Sub UpdateDailyData()
     
     'RÃ©initialisation des filtres et des colonnes masquÃ©es
     Call DesactiverFiltresEtAfficherColonnes
-    RemovePreparationColumn ThisWorkbook.Worksheets(2), "Préparation"
-    RemovePreparationColumn ThisWorkbook.Worksheets(3), "Préparation"
+    RemovePreparationColumn ThisWorkbook.Worksheets(2), "Prï¿½paration"
+    RemovePreparationColumn ThisWorkbook.Worksheets(3), "Prï¿½paration"
 
     
     '====================================================================
@@ -550,8 +550,8 @@ Public Sub UpdateDailyData()
     
     
     Set prepDict = LoadPreparationData(PREP_FILE_PATH, PREP_KEY_COLUMN, PREP_VALUE_COLUMN)
-    InsertPreparationColumnWithData destWs, 10, "Préparation", prepDict
-    InsertPreparationColumnWithData wbDest.Worksheets(3), 5, "Préparation", prepDict
+    InsertPreparationColumnWithData destWs, 10, "Prï¿½paration", prepDict
+    InsertPreparationColumnWithData wbDest.Worksheets(3), 5, "Prï¿½paration", prepDict
 
     destWs.Range("A:A,E:H").EntireColumn.Hidden = True
 
