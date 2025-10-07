@@ -644,6 +644,7 @@ Private Sub InsertPreparationColumnWithData(ws As Worksheet, colIndex As Long, h
             ws.Cells(r, colIndex).Value = ""
         End If
     Next r
+    ws.Columns(colIndex).AutoFit
 End Sub
 
 
@@ -800,7 +801,7 @@ Private Sub Tri(ws As Worksheet, Col1 As String, ColTemp As String)
         .Columns(ColTemp).Delete ' Supprime la colonne temporaire
     End With
 
- End Sub
+End Sub
     
 
 
