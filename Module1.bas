@@ -638,7 +638,7 @@ Private Sub InsertPreparationColumnWithData(ws As Worksheet, colIndex As Long, h
             If Not prepDict Is Nothing And prepDict.Exists(key) Then
                 ws.Cells(r, colIndex).Value = prepDict(key)
             Else
-                ws.Cells(r, colIndex).Value = ""
+                ws.Cells(r, colIndex).Value = "faire DT"
             End If
         Else
             ws.Cells(r, colIndex).Value = ""
